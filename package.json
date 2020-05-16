@@ -1,0 +1,25 @@
+{
+  "name": "fullstack-boilerplate-ts",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Daniel de Paula <contact@danielpes.me>",
+  "repository": "git@github.com:danielpes/fullstack-boilerplate-ts.git",
+  "license": "MIT",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "start:client": "cd ./client && yarn start",
+    "start:server": "cd ./server && yarn start",
+    "format": "prettier --write \"**/*.ts\"",
+    "lint:client": "cd ./client && yarn lint",
+    "lint:server": "cd ./server && yarn lint",
+    "lint": "yarn lint:server"
+  },
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1"
+  }
+}
