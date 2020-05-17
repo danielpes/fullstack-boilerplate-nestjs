@@ -13,6 +13,19 @@ export class AuthController {
     this.isDevEnv = configService.get('NODE_ENV') === 'development';
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  getAuthenticatedUser(@Req() req) {
+    return { user: req.user };
+  }
+
+  @Get('logout')
+  @Redirect('/login')
+  logout(@Req() _req, @Res() res) {
+    res.clearCookie('jwt');
+    return;
+  }
+
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
   async handleGoogleLogin(): Promise<void> {
@@ -28,19 +41,6 @@ export class AuthController {
       maxAge: 1000 * sessionAgeSeconds,
       secure: !this.isDevEnv
     });
-    return;
-  }
-
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  getAuthenticatedUser(@Req() req) {
-    return { user: req.user };
-  }
-
-  @Get('logout')
-  @Redirect('/')
-  logout(@Req() _req, @Res() res) {
-    res.clearCookie('jwt');
     return;
   }
 }
