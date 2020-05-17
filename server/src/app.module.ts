@@ -1,10 +1,46 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path';
+import * as cookieParser from 'cookie-parser';
+import * as csurf from 'csurf';
+import * as helmet from 'helmet';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { DevProxyMiddleware } from './common/middleware/dev-proxy.middleware';
 
 @Module({
-  imports: [],
+  imports: [
+    AuthModule,
+    UsersModule,
+    ServeStaticModule.forRoot({
+      rootPath: path.join(process.cwd(), '..', 'client', 'build'),
+      exclude: ['/api*', '/auth*']
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env.defaults']
+    })
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  private isDevEnv: boolean;
+  private globalMiddlewares;
+
+  constructor(configService: ConfigService) {
+    this.isDevEnv = configService.get('NODE_ENV') === 'development';
+    this.globalMiddlewares = [cookieParser(), csurf({ cookie: true }), helmet()];
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    if (this.isDevEnv) {
+      consumer.apply(DevProxyMiddleware).exclude('api/(.*)', 'auth/(.*)').forRoutes('*');
+    }
+    consumer.apply(...this.globalMiddlewares).forRoutes('*');
+  }
+}

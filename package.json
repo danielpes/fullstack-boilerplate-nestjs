@@ -6,12 +6,13 @@
   "repository": "git@github.com:danielpes/fullstack-boilerplate-ts.git",
   "license": "MIT",
   "workspaces": [
-    "server",
-    "client"
+    "client",
+    "server"
   ],
   "scripts": {
-    "start:client": "cd ./client && yarn start",
-    "start:server": "cd ./server && yarn start",
+    "dev:client": "yarn --cwd client start",
+    "dev:server": "yarn --cwd server start:dev",
+    "dev": "concurrently 'yarn:dev:*'",
     "format": "prettier --write \"**/*.ts\"",
     "lint:client": "cd ./client && yarn lint",
     "lint:server": "cd ./server && yarn lint",
@@ -21,5 +22,11 @@
     "husky": "^4.2.5",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1"
+  },
+  "resolutions": {
+    "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "concurrently": "^5.2.0"
   }
 }
