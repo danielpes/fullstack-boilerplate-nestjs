@@ -37,7 +37,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     if (!profile || !accessToken) {
       return done(new BadRequestException());
     }
-    console.log({ profile });
     const userInfo = {
       token: accessToken,
       name: profile.displayName,

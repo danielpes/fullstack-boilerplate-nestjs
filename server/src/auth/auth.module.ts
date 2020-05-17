@@ -8,13 +8,15 @@ import { GoogleStrategy } from './google.strategy';
 import { UsersService } from '../users/users.service';
 import { JwtStrategy } from './jwt.strategy';
 
+import { sessionAgeSeconds } from './constants';
+
 @Module({
   imports: [
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET_KEY'),
-        signOptions: { expiresIn: '7 days' }
+        signOptions: { expiresIn: sessionAgeSeconds }
       })
     })
   ],

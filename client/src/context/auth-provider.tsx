@@ -1,54 +1,59 @@
 import React from 'react';
 
-interface Context {
-  data: Data;
-  fetchUser: () => Promise<void>;
+interface AuthContext {
+  data: ContextData;
+  logout: () => void;
 }
-const AuthContext = React.createContext<Context>({
-  data: { user: null },
-  fetchUser: async () => {}
-});
-
-interface Data {
+interface ContextData {
   user: User | null;
 }
 interface User {
+  id: string;
   name: string;
+  email: string;
+  pictureUrl: string;
 }
-function AuthProvider(props: Object) {
+
+const AuthContext = React.createContext<AuthContext>({
+  data: { user: null },
+  logout: () => {}
+});
+
+export function AuthProvider(props: Object) {
+  const [data, setData] = React.useState<ContextData>({ user: null });
   const [isLoading, setIsLoading] = React.useState(false);
-  const [data, setData] = React.useState<Data>({ user: null });
 
   React.useEffect(() => {
-    fetchUser();
+    (function getCurrentUser() {
+      setIsLoading(true);
+      fetch('/auth/me')
+        .then((res) => res.json())
+        .then((data) => (data ? setData({ user: data.user }) : logout()))
+        .catch(() => logout())
+        .finally(() => setIsLoading(false));
+    })();
   }, []);
 
   if (isLoading) {
-    return <h1>Loading</h1>;
+    return <h1>Loading...</h1>;
   }
 
-  async function fetchUser() {
-    setIsLoading(true);
-    console.log('fetching user');
-    const response = await fetch('/auth/me');
-    console.log({ response });
-    const data = await response.json();
-    console.log({ data });
-    // const user = await authClient.getAuthenticatedUser();
-    if (data) {
-      setData({ user: data.user });
-    }
-    setIsLoading(false);
+  function logout(): Promise<void> {
+    setData({ user: null });
+    return fetch('/auth/logout').then(() => {});
   }
-  return <AuthContext.Provider value={{ data, fetchUser }} {...props} />;
+
+  return <AuthContext.Provider value={{ data, logout }} {...props} />;
 }
 
-function useAuth() {
+export function useAuth() {
   const context = React.useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error(`useAuth must be used within a AuthProvider`);
   }
   return context;
 }
 
-export { AuthProvider, useAuth };
+export function useAuthUser() {
+  return useAuth().data.user;
+}

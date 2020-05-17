@@ -1,9 +1,18 @@
-import { Controller, Get, Req, UseGuards, Redirect, Res } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards, Redirect } from '@nestjs/common';
 import GoogleAuthGuard from './google.guard';
 import { JwtAuthGuard } from './jwt.guard';
 
+import { sessionAgeSeconds } from './constants';
+import { ConfigService } from '@nestjs/config';
+
 @Controller('auth')
 export class AuthController {
+  private isDevEnv: boolean;
+
+  constructor(configService: ConfigService) {
+    this.isDevEnv = configService.get('NODE_ENV') === 'development';
+  }
+
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
   async handleGoogleLogin(): Promise<void> {
@@ -14,7 +23,11 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Redirect('/home')
   async handleGoogleCallback(@Req() req, @Res() res): Promise<void> {
-    res.cookie('jwt', req.user.jwt, {});
+    res.cookie('jwt', req.user.jwt, {
+      httpOnly: true,
+      maxAge: 1000 * sessionAgeSeconds,
+      secure: !this.isDevEnv
+    });
     return;
   }
 
@@ -22,5 +35,12 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getAuthenticatedUser(@Req() req) {
     return { user: req.user };
+  }
+
+  @Get('logout')
+  @Redirect('/')
+  logout(@Req() _req, @Res() res) {
+    res.clearCookie('jwt');
+    return;
   }
 }

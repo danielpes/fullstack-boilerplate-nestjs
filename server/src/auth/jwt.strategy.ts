@@ -13,8 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(configService: ConfigService) {
     super({
       jwtFromRequest: (req) => {
-        console.log({ cookies: req.cookies });
-        return req.cookies.ut;
+        return req.cookies.jwt;
       },
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET_KEY')

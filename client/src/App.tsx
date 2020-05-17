@@ -1,6 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/auth-provider';
+
+import { AuthProvider, useAuthUser } from './context/auth-provider';
+import { LoginPage } from './pages/login-page';
+import { HomePage } from './pages/home-page';
+
 import './app.css';
 
 function App() {
@@ -10,10 +14,10 @@ function App() {
         <Router>
           <Switch>
             <Route path="/login">
-              <Login />
+              <LoginPage />
             </Route>
             <PrivateRoute path="/">
-              <Home />
+              <HomePage />
             </PrivateRoute>
           </Switch>
         </Router>
@@ -22,31 +26,13 @@ function App() {
   );
 }
 
-function Login() {
-  const user = useAuth().data.user;
-
-  if (user) {
-    return <Redirect to="/" />;
-  }
-
-  return <a href="/auth/google/login">Login</a>;
-}
-
-function Home() {
-  const { data } = useAuth();
-  return <h1>{`Hello, ${data.user?.name}`}</h1>;
-}
-
-// A wrapper for <Route> that redirects to the login
-// screen if you're not yet authenticated.
 interface PrivateRouteProps {
   children: React.ReactChild;
   [key: string]: any;
 }
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, ...rest }) => {
-  const { data } = useAuth();
-
-  return <Route {...rest}>{data.user ? children : <Redirect to="/login" />}</Route>;
+  const user = useAuthUser();
+  return <Route {...rest}>{user ? children : <Redirect to="/login" />}</Route>;
 };
 
 export default App;
