@@ -1,5 +1,5 @@
 import { Controller, Get, Req, Res, UseGuards, Redirect } from '@nestjs/common';
-import GoogleAuthGuard from './google.guard';
+import { OAuthGuard } from './oauth.guard';
 import { JwtAuthGuard } from './jwt.guard';
 
 import { sessionAgeSeconds } from './constants';
@@ -26,16 +26,16 @@ export class AuthController {
     return;
   }
 
-  @Get('google/login')
-  @UseGuards(GoogleAuthGuard)
-  async handleGoogleLogin(): Promise<void> {
+  @Get(':provider(google|github)/login')
+  @UseGuards(OAuthGuard)
+  async handleOAuthLogin(): Promise<void> {
     return;
   }
 
-  @Get('google/callback')
-  @UseGuards(GoogleAuthGuard)
+  @Get(':provider(google|github)/callback')
+  @UseGuards(OAuthGuard)
   @Redirect('/home')
-  async handleGoogleCallback(@Req() req, @Res() res): Promise<void> {
+  async handleOAuthCallback(@Req() req, @Res() res): Promise<void> {
     res.cookie('jwt', req.user.jwt, {
       httpOnly: true,
       maxAge: 1000 * sessionAgeSeconds,

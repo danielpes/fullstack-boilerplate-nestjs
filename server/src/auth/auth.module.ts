@@ -4,7 +4,8 @@ import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { GoogleStrategy } from './google.strategy';
+import { GoogleStrategy } from './oauth.google.strategy';
+import { GithubStrategy } from './oauth.github.strategy';
 import { UsersService } from '../users/users.service';
 import { JwtStrategy } from './jwt.strategy';
 
@@ -21,7 +22,7 @@ import { sessionAgeSeconds } from './constants';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, GoogleStrategy, JwtStrategy],
+  providers: [AuthService, UsersService, GoogleStrategy, GithubStrategy, JwtStrategy],
   exports: [AuthService]
 })
 export class AuthModule {}

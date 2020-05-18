@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService, User } from '../users/users.service';
 import { JWTPayload } from './jwt.strategy';
 
-export type PassportUserData = Omit<User, 'id'>;
+export type PassportUserData = Omit<User, 'id' | 'uuid'>;
 export interface AuthResult {
   jwt: string;
 }
@@ -19,7 +19,7 @@ export class AuthService {
   public async handlePassportAuth(userInfo: PassportUserData): Promise<AuthResult | null> {
     try {
       const user =
-        (await this.usersService.findOneByToken(userInfo.token)) ||
+        (await this.usersService.findOneByEmail(userInfo.email)) ||
         (await this.usersService.createUser(userInfo));
 
       const jwtPayload: JWTPayload = { sub: user.id, ...user };
