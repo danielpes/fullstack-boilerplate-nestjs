@@ -20,7 +20,6 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string): Promise<PublicUserData | undefined> {
-    console.log(this.users);
     return this.users.find((user) => user.email === email);
   }
 
