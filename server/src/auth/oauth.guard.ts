@@ -6,8 +6,8 @@ export class OAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
     const provider = context.switchToHttp().getRequest()?.params?.provider;
     if (provider) {
-      class OAuthGuard extends AuthGuard(provider) {}
-      return new OAuthGuard().canActivate(context);
+      class ProviderAuthGuard extends AuthGuard(provider) {}
+      return new ProviderAuthGuard().canActivate(context);
     }
     return false;
   }
