@@ -1,35 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import * as uuid from 'uuid';
-
-export type PublicUserData = User;
-export type UserInfo = Omit<User, 'id' | 'uuid'>;
-export interface User {
-  id: string;
-  uuid: string;
-  name: string;
-  email: string;
-  pictureUrl: string;
-}
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateUserDto } from './create-user.dto';
+import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  private users: User[];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>
+  ) {}
 
-  constructor() {
-    this.users = [];
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 
-  async findOneByEmail(email: string): Promise<PublicUserData | undefined> {
-    return this.users.find((user) => user.email === email);
-  }
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    const newUser = new User();
+    newUser.name = createUserDto.name;
+    newUser.email = createUserDto.email;
+    newUser.pictureUrl = createUserDto.pictureUrl || null;
 
-  async createUser(userData: UserInfo): Promise<PublicUserData> {
-    const newUser: User = {
-      ...userData,
-      id: String(this.users.length),
-      uuid: uuid.v4()
-    };
-    this.users.push(newUser);
-    return newUser;
+    return this.usersRepository.save(newUser);
   }
 }

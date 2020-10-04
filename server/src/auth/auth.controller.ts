@@ -4,7 +4,7 @@ import { JwtAuthGuard } from './jwt.guard';
 
 import { sessionAgeSeconds } from './constants';
 import { ConfigService } from '@nestjs/config';
-import { User } from '../users/users.service';
+import { User } from '../users/user.entity';
 
 @Controller('auth')
 export class AuthController {

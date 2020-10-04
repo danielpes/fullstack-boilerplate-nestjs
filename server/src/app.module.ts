@@ -11,6 +11,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DevProxyMiddleware } from './common/middleware/dev-proxy.middleware';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -23,6 +24,18 @@ import { DevProxyMiddleware } from './common/middleware/dev-proxy.middleware';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env.defaults']
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          type: 'postgres',
+          url: config.get('DATABASE_URL'),
+          entities: [__dirname + '/**/*.entity.{ts,js}'],
+          synchronize: config.get('NODE_ENV') === 'development'
+        };
+      }
     })
   ],
   controllers: [AppController],

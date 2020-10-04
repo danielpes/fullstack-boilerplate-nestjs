@@ -1,6 +1,6 @@
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-
+import { CreateUserDto } from '../users/create-user.dto';
 import { AuthService } from './auth.service';
 
 export function OAuthBaseStrategy(Strategy): { new (...args): InstanceType<any> } {
@@ -16,10 +16,10 @@ export function OAuthBaseStrategy(Strategy): { new (...args): InstanceType<any> 
       if (!profile || !accessToken) {
         return done(new BadRequestException());
       }
-      const userInfo = {
+      const userInfo: CreateUserDto = {
         name: profile.displayName,
         email: profile.emails[0].value,
-        pictureUrl: profile.picture || null
+        pictureUrl: profile.picture
       };
 
       try {

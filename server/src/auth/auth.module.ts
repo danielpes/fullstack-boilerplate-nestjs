@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { GoogleStrategy } from './oauth.google.strategy';
 import { GithubStrategy } from './oauth.github.strategy';
-import { UsersService } from '../users/users.service';
 import { JwtStrategy } from './jwt.strategy';
-
 import { sessionAgeSeconds } from './constants';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    UsersModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
@@ -22,7 +21,7 @@ import { sessionAgeSeconds } from './constants';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, GoogleStrategy, GithubStrategy, JwtStrategy],
+  providers: [AuthService, GoogleStrategy, GithubStrategy, JwtStrategy],
   exports: [AuthService]
 })
 export class AuthModule {}
