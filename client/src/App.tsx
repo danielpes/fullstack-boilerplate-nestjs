@@ -5,7 +5,7 @@ import { AuthProvider, useAuthUser } from './context/auth-provider';
 import { LoginPage } from './pages/login-page';
 import { HomePage } from './pages/home-page';
 
-import './app.css';
+import './App.css';
 
 function App() {
   return (
